@@ -60,9 +60,16 @@ object FormDemo: TFormDemo
       Height = 13
       Caption = 'Page size'
     end
+    object Label3: TLabel
+      Left = 16
+      Top = 96
+      Width = 19
+      Height = 13
+      Caption = 'Size'
+    end
     object chkDraw: TCheckBox
       Left = 16
-      Top = 184
+      Top = 224
       Width = 153
       Height = 17
       Caption = 'Owner-draw'
@@ -74,7 +81,7 @@ object FormDemo: TFormDemo
       Top = 152
       Width = 113
       Height = 33
-      Max = 5
+      Max = 4
       PageSize = 20
       Position = 1
       TabOrder = 1
@@ -92,6 +99,19 @@ object FormDemo: TFormDemo
       Position = 20
       TabOrder = 2
       OnChange = trackPageChange
+    end
+    object trackSize: TTrackBar
+      Left = 112
+      Top = 88
+      Width = 113
+      Height = 33
+      Max = 40
+      Min = 8
+      PageSize = 5
+      Frequency = 20
+      Position = 20
+      TabOrder = 3
+      OnChange = trackSizeChange
     end
   end
   object Panel2: TPanel

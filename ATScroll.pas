@@ -25,7 +25,8 @@ type
     aseScrollAreaV,
     aseScrollAreaH,
     aseScrollThumbV,
-    aseScrollThumbH
+    aseScrollThumbH,
+    aseIndentRight
     );
 
 type
@@ -55,6 +56,7 @@ type
     FInUp: TRect; //area for up or left arrow
     FInDown: TRect; //area for down or right arrow
     FInThumb: TRect; //area for scroll-thumb
+    FInIndent: TRect;
     FBitmap: TBitmap;
     FOnChange: TNotifyEvent;
     FOnOwnerDraw: TATScrollDrawEvent;
@@ -170,13 +172,15 @@ var
   fSize: Integer;
 begin
   FIn:= ClientRect;
+  FInIndent:= Rect(ClientWidth-FIndentRight, 0, ClientWidth, ClientHeight);
+  Dec(FIn.Right, FIndentRight);
 
-  if FIndentRight>0 then
-  begin
-    C.Brush.Color:= Color;
-    C.FillRect(FIn);
-    Dec(FIn.Right, FIndentRight);
-  end;
+  if not IsRectEmpty(FInIndent) then
+    if DoDrawEvent(aseIndentRight, C, FInIndent) then
+    begin
+      C.Brush.Color:= Color;
+      C.FillRect(FInIndent);
+    end;
 
   C.Brush.Color:= FColorBorder;
   C.FillRect(FIn);
