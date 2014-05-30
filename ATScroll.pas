@@ -56,10 +56,20 @@ type
     FBitmap: TBitmap;
     FOnOwnerDraw: TATScrollDrawEvent;
 
+    //drag-drop
+    FMouseDown: boolean;
+    FMouseDownPnt: TPoint;
+    FMouseDrag: boolean;
+    FMouseDragThumbOffset: Integer;
+
+    function MouseToPos(X, Y: Integer): Integer;
     procedure DoPaintArrow(C: TCanvas; R: TRect; Typ: TATScrollElemType);
     procedure DoPaintThumb(C: TCanvas);
+    procedure DoPaintBack(C: TCanvas);
     procedure DoPaintTo(C: TCanvas);
     function IsHorz: boolean;
+    procedure DoUpdateThumbRect;
+    procedure DoUpdatePosOnDrag(X, Y: Integer);
     function GetPxAtScroll(APos: Integer): Integer;
 
     procedure SetKind(Value: TScrollBarKind);
@@ -80,6 +90,8 @@ type
     procedure Paint; override;
     procedure Resize; override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+    procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     procedure Click; override;
     {$ifdef windows}
     procedure WMEraseBkgnd(var Message: TMessage); message WM_ERASEBKGND;
@@ -129,6 +141,10 @@ begin
   FBitmap.PixelFormat:= pf24bit;
   FBitmap.Width:= 1600;
   FBitmap.Height:= 60;
+
+  FMouseDown:= false;
+  FMouseDownPnt:= Point(0, 0);
+  FMouseDrag:= false;
 end;
 
 destructor TATScroll.Destroy;
@@ -189,20 +205,39 @@ begin
     Dec(FIn.Bottom, FSize);
   end;
 
+  DoPaintBack(C);
+  DoUpdateThumbRect;
+  DoPaintThumb(C);
+end;
+
+procedure TATScroll.DoPaintBack(C: TCanvas);
+begin
   if DoDrawEvent(aseScrollArea, C, FIn) then
   begin
     C.Brush.Color:= Color;
     C.FillRect(FIn);
   end;
-  
-  DoPaintThumb(C);
 end;
 
 
 procedure TATScroll.MouseDown(Button: TMouseButton; Shift: TShiftState;
   X, Y: Integer);
 begin
-  inherited;
+  FMouseDown:= true;
+  FMouseDownPnt:= Point(X, Y);
+
+  if IsHorz then
+    FMouseDragThumbOffset:= X-FInThumb.Left
+  else
+    FMouseDragThumbOffset:= Y-FInThumb.Top;
+end;
+
+procedure TATScroll.MouseUp(Button: TMouseButton; Shift: TShiftState;
+  X, Y: Integer);
+begin
+  FMouseDown:= false;
+  FMouseDrag:= false;
+  FMouseDownPnt:= Point(0, 0);
 end;
 
 procedure TATScroll.Resize;
@@ -329,17 +364,17 @@ begin
   Result:= N0 + APos * NLen div (FMax-FMin);
 end;
 
-procedure TATScroll.DoPaintThumb(C: TCanvas);
+procedure TATScroll.DoUpdateThumbRect;
 const
   cMinView = 10;
-  cMinMark = cMinView*2;
-  cMarkOf = 4;
 var
   R: TRect;
-  P: TPoint;
 begin
   if IsHorz then
   begin
+    if FIn.Right-FIn.Left<cMinView then
+      begin FInThumb:= Rect(0, 0, 0, 0); Exit end;
+
     R.Top:= FIn.Top;
     R.Bottom:= FIn.Bottom;
     R.Left:= GetPxAtScroll(FPos);
@@ -350,6 +385,9 @@ begin
   end
   else
   begin
+    if FIn.Bottom-FIn.Top<cMinView then
+      begin FInThumb:= Rect(0, 0, 0, 0); Exit end;
+
     R.Left:= FIn.Left;
     R.Right:= FIn.Right;
     R.Top:= GetPxAtScroll(FPos);
@@ -358,10 +396,21 @@ begin
     R.Bottom:= Math.Max(R.Bottom, R.Top+cMinView);
     R.Bottom:= Math.Min(R.Bottom, FIn.Bottom);
   end;
-
   FInThumb:= R;
+end;
+
+procedure TATScroll.DoPaintThumb(C: TCanvas);
+const
+  cMinMark = 20;
+  cMarkOf = 4;
+var
+  R: TRect;
+  P: TPoint;
+begin
+  R:= FInThumb;
+  if IsRectEmpty(R) then Exit;
   if not DoDrawEvent(aseScrollThumb, C, R) then Exit;
-  
+
   C.Brush.Color:= FColorFill;
   C.Pen.Color:= FColorRect;
   C.Rectangle(R);
@@ -430,6 +479,44 @@ begin
     FPos:= Math.Max(FPos, FMin);
     Invalidate;
   end;
+end;
+
+procedure TATScroll.MouseMove(Shift: TShiftState; X, Y: Integer);
+begin
+  inherited;
+
+  if FMouseDrag then
+  begin
+    DoUpdatePosOnDrag(X, Y);
+    Exit
+  end;
+
+  if FMouseDown and not FMouseDrag and PtInRect(FInThumb, Point(X, Y)) then
+  begin
+    FMouseDrag:= true;
+    DoUpdatePosOnDrag(X, Y);
+    Exit
+  end;
+end;
+
+function TATScroll.MouseToPos(X, Y: Integer): Integer;
+begin
+  if IsHorz then
+    Result:= FMin + (X-FIn.Left) * (FMax-FMin) div Math.Max(FIn.Right-FIn.Left, 1)
+  else
+    Result:= FMin + (Y-FIn.Top) * (FMax-FMin) div Math.Max(FIn.Bottom-FIn.Top, 1);
+end;
+
+procedure TATScroll.DoUpdatePosOnDrag(X, Y: Integer);
+var
+  N: Integer;
+begin
+  N:= MouseToPos(
+    X-FMouseDragThumbOffset,
+    Y-FMouseDragThumbOffset);
+  N:= Math.Max(N, FMin);
+  N:= Math.Min(N, FMax-FPage);
+  SetPos(N);
 end;
 
 end.
