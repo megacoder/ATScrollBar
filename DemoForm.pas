@@ -74,8 +74,11 @@ procedure TFormDemo.DrawEvent(S: TObject; AType: TATScrollElemType;
 const
   cc: array[TATScrollElemType] of TColor = (
     clYellow, clYellow,
+    clCream, clGreen,
     clLime, clLime,
-    clCream, clGreen, $e0a0c0, clNavy, $e05050);
+    $e0a0c0, clNavy,
+    clRed div 2, clRed,
+    $e05050);
 begin
   ACanvas.Brush.Color:= cc[AType];
   ACanvas.FillRect(ARect);

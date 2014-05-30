@@ -1,11 +1,11 @@
 {
 ATScrollBar for Delphi/Lazarus
-Copyright (c) Alexey Torgashin (uvviewsoft.com)
+Copyright (c) Alexey Torgashin (UVViewSoft)
 License: MIT
 
 Supports most of needed features:
 - default look is flat
-- default arrow mark of any size
+- arrow mark of any size
 - border of any size
 - owner-draw (you can paint OS theme)
 mouse:
@@ -38,10 +38,12 @@ type
     aseArrowDown,
     aseArrowLeft,
     aseArrowRight,
-    aseScrollAreaV,
-    aseScrollAreaH,
     aseScrollThumbV,
     aseScrollThumbH,
+    aseScrollAreaH,
+    aseScrollAreaV,
+    aseScrolledAreaH,
+    aseScrolledAreaV,
     aseIndentRight
     );
 
@@ -55,13 +57,14 @@ type
     FKind: TScrollBarKind;
     FIndentBorder: Integer;
     FIndentRight: Integer;
-    FIndentA: Integer;
+    FIndentArrow: Integer;
     FTimerDelay: Integer;
 
     FColorBorder: TColor;
     FColorRect: TColor;
     FColorFill: TColor;
     FColorArrow: TColor;
+    FColorScrolled: TColor;
 
     FPos,
     FMin,
@@ -95,6 +98,7 @@ type
     procedure DoPaintArrow(C: TCanvas; R: TRect; Typ: TATScrollElemType);
     procedure DoPaintThumb(C: TCanvas);
     procedure DoPaintBack(C: TCanvas);
+    procedure DoPaintBackScrolled(C: TCanvas);
     procedure DoPaintTo(C: TCanvas);
     function IsHorz: boolean;
     procedure DoUpdateThumbRect;
@@ -131,7 +135,7 @@ type
     property Kind: TScrollBarKind read FKind write SetKind;
     property IndentBorder: Integer read FIndentBorder write FIndentBorder;
     property IndentRight: Integer read FIndentRight write FIndentRight;
-    property IndentArrow: Integer read FIndentA write FIndentA;
+    property IndentArrow: Integer read FIndentArrow write FIndentArrow;
     property TimerDelay: Integer read FTimerDelay write FTimerDelay;
     property ColorBorder: TColor read FColorBorder write FColorBorder;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
@@ -158,8 +162,8 @@ begin
   FKind:= sbHorizontal;
   FIndentBorder:= 1;
   FIndentRight:= 0;
-  FIndentA:= 3;
-  FTimerDelay:= 70;
+  FIndentArrow:= 3;
+  FTimerDelay:= 80;
 
   FMin:= 0;
   FMax:= 100;
@@ -170,6 +174,7 @@ begin
   FColorArrow:= $404040;
   FColorRect:= $808080;
   FColorFill:= $c0c0c0;
+  FColorScrolled:= $c8c8c8;
 
   FBitmap:= TBitmap.Create;
   FBitmap.PixelFormat:= pf24bit;
@@ -248,6 +253,7 @@ begin
 
   DoPaintBack(C);
   DoUpdateThumbRect;
+  DoPaintBackScrolled(C);
   DoPaintThumb(C);
 end;
 
@@ -261,6 +267,27 @@ begin
     C.Brush.Color:= Color;
     C.FillRect(FIn);
   end;
+end;
+
+procedure TATScroll.DoPaintBackScrolled(C: TCanvas);
+var
+  Typ: TATScrollElemType;
+begin
+  if IsHorz then Typ:= aseScrolledAreaH else Typ:= aseScrolledAreaV;
+
+  if FMouseDown and FMouseDownOnPageUp then
+    if DoDrawEvent(Typ, C, FInPageUp) then
+    begin
+      C.Brush.Color:= FColorScrolled;
+      C.FillRect(FInPageUp);
+    end;
+
+  if FMouseDown and FMouseDownOnPageDown then
+    if DoDrawEvent(Typ, C, FInPageDown) then
+    begin
+      C.Brush.Color:= FColorScrolled;
+      C.FillRect(FInPageDown);
+    end;
 end;
 
 
@@ -292,6 +319,7 @@ begin
   FMouseDown:= false;
   FMouseDownOnThumb:= false;
   FTimer.Enabled:= false;
+  Invalidate;
 end;
 
 procedure TATScroll.Resize;
@@ -360,7 +388,7 @@ begin
   C.FillRect(R);
 
   P:= CenterPoint(R);
-  cc:= FIndentA;
+  cc:= FIndentArrow;
 
   case Typ of
     aseArrowUp:
@@ -455,12 +483,12 @@ begin
   if IsHorz then
   begin
     FInPageUp:= Rect(FIn.Left, FIn.Top, FInThumb.Left, FIn.Bottom);
-    FInPageDown:= Rect(FInThumb.Right+1, FIn.Top, FIn.Right, FIn.Bottom);
+    FInPageDown:= Rect(FInThumb.Right, FIn.Top, FIn.Right, FIn.Bottom);
   end
   else
   begin
     FInPageUp:= Rect(FIn.Left, FIn.Top, FIn.Right, FInThumb.Top);
-    FInPageDown:= Rect(FIn.Left, FInThumb.Bottom+1, FIn.Right, FIn.Bottom);
+    FInPageDown:= Rect(FIn.Left, FInThumb.Bottom, FIn.Right, FIn.Bottom);
   end;
 end;
 
