@@ -16,9 +16,12 @@ type
     Label1: TLabel;
     labv: TLabel;
     labh: TLabel;
+    Label2: TLabel;
+    trackPage: TTrackBar;
     procedure FormCreate(Sender: TObject);
     procedure chkDrawClick(Sender: TObject);
     procedure trackBorChange(Sender: TObject);
+    procedure trackPageChange(Sender: TObject);
   private
     { Private declarations }
     procedure ChangeH(S: TObject);
@@ -48,7 +51,6 @@ begin
   bh.OnChange:= ChangeH;
   bh.Min:= 20;
   bh.Max:= 200;
-  bh.Position:= bh.Min;
 
   //-----------------------------------
   bv:= TATScroll.Create(Self);
@@ -58,7 +60,6 @@ begin
   bv.OnChange:= ChangeV;
   bv.Min:= 10;
   bv.Max:= 100;
-  bv.Position:= bv.Min;
 
   bv.Width:= 22;
   bh.Height:= bv.Width;
@@ -109,6 +110,12 @@ end;
 procedure TFormDemo.ChangeV(S: TObject);
 begin
   labv.Caption:= Format('Vert %d (%d .. %d)', [bv.Position, bv.Min, bv.Max]);
+end;
+
+procedure TFormDemo.trackPageChange(Sender: TObject);
+begin
+  bv.PageSize:= trackPage.Position;
+  bh.PageSize:= bv.PageSize;
 end;
 
 end.

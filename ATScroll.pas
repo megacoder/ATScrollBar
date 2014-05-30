@@ -452,6 +452,7 @@ begin
   if FMax<>Value then
   begin
     FMax:= Value;
+    FPos:= Math.Min(FPos, FMax);
     Invalidate;
   end;
 end;
@@ -461,6 +462,7 @@ begin
   if FMin<>Value then
   begin
     FMin:= Value;
+    FPos:= Math.Max(FPos, FMin);
     Invalidate;
   end;
 end;
