@@ -7,24 +7,28 @@ uses
   Dialogs, ExtCtrls, StdCtrls, ATScroll, ComCtrls;
 
 type
-  TForm1 = class(TForm)
+  TFormDemo = class(TForm)
     Panel1: TPanel;
     Panel2: TPanel;
     Splitter1: TSplitter;
     trackV: TTrackBar;
     trackH: TTrackBar;
+    chkDraw: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure trackVChange(Sender: TObject);
     procedure trackHChange(Sender: TObject);
+    procedure chkDrawClick(Sender: TObject);
   private
     { Private declarations }
+    procedure DrawEvent(S: TObject; AType: TATScrollElemType;
+      ACanvas: TCanvas; const ARect: TRect; var ACan: boolean);
   public
     { Public declarations }
     bh, bv: TATScroll;
   end;
 
 var
-  Form1: TForm1;
+  FormDemo: TFormDemo;
 
 implementation
 
@@ -32,7 +36,7 @@ uses StrUtils, Math;
 
 {$R *.dfm}
 
-procedure TForm1.FormCreate(Sender: TObject);
+procedure TFormDemo.FormCreate(Sender: TObject);
 begin
   bh:= TATScroll.Create(Self);
   bh.Parent:= Panel1;
@@ -50,15 +54,40 @@ begin
   bh.IndentRight:= bv.Width;
 end;
 
-procedure TForm1.trackVChange(Sender: TObject);
+procedure TFormDemo.trackVChange(Sender: TObject);
 begin
   bv.Position:= trackV.Position;
-  bv.Invalidate;
 end;
 
-procedure TForm1.trackHChange(Sender: TObject);
+procedure TFormDemo.trackHChange(Sender: TObject);
 begin
   bh.Position:= trackH.Position;
+end;
+
+procedure TFormDemo.DrawEvent;
+const
+  cc: array[TATScrollElemType] of TColor = (clWhite, clYellow, clLime, clPurple,
+    clCream, clGreen);
+begin
+  ACanvas.Brush.Color:= cc[AType];
+  ACanvas.FillRect(ARect);
+  ACan:= false;
+end;
+
+procedure TFormDemo.chkDrawClick(Sender: TObject);
+begin
+  if chkDraw.Checked then
+  begin
+    bh.OnOwnerDraw:= DrawEvent;
+    bv.OnOwnerDraw:= DrawEvent;
+  end
+  else
+  begin
+    bh.OnOwnerDraw:= nil;
+    bv.OnOwnerDraw:= nil;
+  end;
+  bh.Invalidate;
+  bv.Invalidate;
 end;
 
 end.

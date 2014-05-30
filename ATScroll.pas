@@ -17,8 +17,17 @@ uses
   Controls, ExtCtrls, Forms;
 
 type
-  TATScrollArrowType = (saLeft, saRight, saTop, saBottom);
-  TATScrollDrawEvent = procedure (Sender: TObject; AIndex: Integer;
+  TATScrollElemType = (
+    aseArrowUp,
+    aseArrowDown,
+    aseArrowLeft,
+    aseArrowRight,
+    aseScrollArea,
+    aseScrollThumb
+    );
+
+type
+  TATScrollDrawEvent = procedure (Sender: TObject; AType: TATScrollElemType;
     ACanvas: TCanvas; const ARect: TRect; var ACanDraw: boolean) of object;
 
 type
@@ -45,11 +54,9 @@ type
     FInDown: TRect; //area for down or right arrow
     FInThumb: TRect; //area for scroll-thumb
     FBitmap: TBitmap;
+    FOnOwnerDraw: TATScrollDrawEvent;
 
-    FOnPanelDrawBefore: TATScrollDrawEvent;
-    FOnPanelDrawAfter: TATScrollDrawEvent;
-
-    procedure DoPaintArrow(C: TCanvas; R: TRect; Typ: TATScrollArrowType);
+    procedure DoPaintArrow(C: TCanvas; R: TRect; Typ: TATScrollElemType);
     procedure DoPaintThumb(C: TCanvas);
     procedure DoPaintTo(C: TCanvas);
     function IsHorz: boolean;
@@ -60,8 +67,8 @@ type
     procedure SetMin(Value: Integer);
     procedure SetMax(Value: Integer);
     procedure SetPage(Value: Integer);
-    function DoDrawBefore(AIndex: Integer; ACanvas: TCanvas; const ARect: TRect): boolean;
-    function DoDrawAfter(AIndex: Integer; ACanvas: TCanvas; const ARect: TRect): boolean;
+    function DoDrawEvent(AType: TATScrollElemType;
+      ACanvas: TCanvas; const ARect: TRect): boolean;
   public
     constructor Create(AOnwer: TComponent); override;
     destructor Destroy; override;
@@ -83,8 +90,7 @@ type
     property IndentRight: Integer read FIndentRight write FIndentRight;
     property IndentArrow: Integer read FIndentA write FIndentA;
     property ColorBorder: TColor read FColorBorder write FColorBorder;
-    property OnPanelDrawBefore: TATScrollDrawEvent read FOnPanelDrawBefore write FOnPanelDrawBefore;
-    property OnPanelDrawAfter: TATScrollDrawEvent read FOnPanelDrawAfter write FOnPanelDrawAfter;
+    property OnOwnerDraw: TATScrollDrawEvent read FOnOwnerDraw write FOnOwnerDraw;
   end;
 
 implementation
@@ -167,8 +173,8 @@ begin
     FSize:= Math.Min(FIn.Bottom-FIn.Top, (FIn.Right-FIn.Left) div 2);
     FInUp:= Rect(FIn.Left, FIn.Top, FIn.Left+FSize, FIn.Bottom);
     FInDown:= Rect(FIn.Right-FSize, FIn.Top, FIn.Right, FIn.Bottom);
-    DoPaintArrow(C, FInUp, saLeft);
-    DoPaintArrow(C, FInDown, saRight);
+    DoPaintArrow(C, FInUp, aseArrowLeft);
+    DoPaintArrow(C, FInDown, aseArrowRight);
     Inc(FIn.Left, FSize);
     Dec(FIn.Right, FSize);
   end
@@ -177,14 +183,17 @@ begin
     FSize:= Math.Min(FIn.Right-FIn.Left, (FIn.Bottom-FIn.Top) div 2);
     FInUp:= Rect(FIn.Left, FIn.Top, FIn.Right, FIn.Top+FSize);
     FInDown:= Rect(FIn.Left, FIn.Bottom-FSize, FIn.Right, FIn.Bottom);
-    DoPaintArrow(C, FInUp, saTop);
-    DoPaintArrow(C, FInDown, saBottom);
+    DoPaintArrow(C, FInUp, aseArrowUp);
+    DoPaintArrow(C, FInDown, aseArrowDown);
     Inc(FIn.Top, FSize);
     Dec(FIn.Bottom, FSize);
   end;
 
-  C.Brush.Color:= Color;
-  C.FillRect(FIn);
+  if DoDrawEvent(aseScrollArea, C, FIn) then
+  begin
+    C.Brush.Color:= Color;
+    C.FillRect(FIn);
+  end;
   
   DoPaintThumb(C);
 end;
@@ -229,18 +238,12 @@ begin
   inherited;
 end;
 
-function TATScroll.DoDrawBefore(AIndex: Integer; ACanvas: TCanvas; const ARect: TRect): boolean;
+function TATScroll.DoDrawEvent(AType: TATScrollElemType;
+  ACanvas: TCanvas; const ARect: TRect): boolean;
 begin
   Result:= true;
-  if Assigned(FOnPanelDrawBefore) then
-    FOnPanelDrawBefore(Self, AIndex, ACanvas, ARect, Result);
-end;
-
-function TATScroll.DoDrawAfter(AIndex: Integer; ACanvas: TCanvas; const ARect: TRect): boolean;
-begin
-  Result:= true;
-  if Assigned(FOnPanelDrawAfter) then
-    FOnPanelDrawAfter(Self, AIndex, ACanvas, ARect, Result);
+  if Assigned(FOnOwnerDraw) then
+    FOnOwnerDraw(Self, AType, ACanvas, ARect, Result);
 end;
 
 procedure TATScroll.SetKind(Value: TScrollBarKind);
@@ -253,11 +256,13 @@ begin
 end;
 
 procedure TATScroll.DoPaintArrow(C: TCanvas; R: TRect;
-  Typ: TATScrollArrowType);
+  Typ: TATScrollElemType);
 var
   P, P1, P2, P3: TPoint;
   cc: Integer;
 begin
+  if not DoDrawEvent(Typ, C, R) then Exit;
+
   C.Brush.Color:= FColorRect;
   C.FillRect(R);
 
@@ -269,25 +274,25 @@ begin
   cc:= FIndentA;
 
   case Typ of
-    saTop:
+    aseArrowUp:
       begin
         P1:= Point(P.X-cc, P.Y+cc div 2);
         P2:= Point(P.X+cc, P.Y+cc div 2);
         P3:= Point(P.X, P.Y-cc+cc div 2);
       end;
-    saBottom:
+    aseArrowDown:
       begin
         P1:= Point(P.X-cc, P.Y-cc div 2);
         P2:= Point(P.X+cc, P.Y-cc div 2);
         P3:= Point(P.X, P.Y+cc-cc div 2);
       end;
-    saLeft:
+    aseArrowLeft:
       begin
         P1:= Point(P.X+cc div 2, P.Y-cc);
         P2:= Point(P.X+cc div 2, P.Y+cc);
         P3:= Point(P.X-cc+cc div 2, P.Y);
       end;
-    saRight:
+    aseArrowRight:
       begin
         P1:= Point(P.X-cc div 2    -1, P.Y-cc);
         P2:= Point(P.X-cc div 2    -1, P.Y+cc);
@@ -333,8 +338,6 @@ var
   R: TRect;
   P: TPoint;
 begin
-  C.Pen.Color:= clRed;
-
   if IsHorz then
   begin
     R.Top:= FIn.Top;
@@ -355,7 +358,9 @@ begin
     R.Bottom:= Math.Max(R.Bottom, R.Top+cMinView);
     R.Bottom:= Math.Min(R.Bottom, FIn.Bottom);
   end;
+
   FInThumb:= R;
+  if not DoDrawEvent(aseScrollThumb, C, R) then Exit;
   
   C.Brush.Color:= FColorFill;
   C.Pen.Color:= FColorRect;

@@ -1,8 +1,8 @@
-object Form1: TForm1
+object FormDemo: TFormDemo
   Left = 303
   Top = 282
   AutoScroll = False
-  Caption = 'ATScroll demo'
+  Caption = 'ATScrollBar demo'
   ClientHeight = 381
   ClientWidth = 716
   Color = clBtnFace
@@ -37,7 +37,7 @@ object Form1: TForm1
       Top = 0
       Width = 33
       Height = 177
-      Max = 120
+      Max = 90
       Orientation = trVertical
       PageSize = 20
       Frequency = 10
@@ -49,11 +49,20 @@ object Form1: TForm1
       Top = 168
       Width = 225
       Height = 33
-      Max = 120
+      Max = 90
       PageSize = 20
       Frequency = 10
       TabOrder = 1
       OnChange = trackHChange
+    end
+    object chkDraw: TCheckBox
+      Left = 24
+      Top = 208
+      Width = 153
+      Height = 17
+      Caption = 'Owner-draw'
+      TabOrder = 2
+      OnClick = chkDrawClick
     end
   end
   object Panel2: TPanel
