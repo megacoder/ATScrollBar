@@ -4,7 +4,7 @@ uses
   XPMan,
   Forms,
   DemoForm in 'DemoForm.pas' {FormDemo},
-  ATScroll in 'ATScroll.pas';
+  ATScrollBar in 'ATScrollBar.pas';
 
 {$R *.res}
 

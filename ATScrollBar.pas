@@ -1,4 +1,4 @@
-unit ATScroll;
+unit ATScrollBar;
 
 interface
 
@@ -40,6 +40,7 @@ type
     FIndentBorder: Integer;
     FIndentRight: Integer;
     FIndentA: Integer;
+    FTimerDelay: Integer;
 
     FColorBorder: TColor;
     FColorRect: TColor;
@@ -57,14 +58,22 @@ type
     FInDown: TRect; //area for down or right arrow
     FInThumb: TRect; //area for scroll-thumb
     FInIndent: TRect;
+    FInPageUp: TRect;
+    FInPageDown: TRect;
+
     FBitmap: TBitmap;
+    FTimer: TTimer;
     FOnChange: TNotifyEvent;
     FOnOwnerDraw: TATScrollDrawEvent;
 
     //drag-drop
     FMouseDown: boolean;
-    FMouseDrag: boolean;
     FMouseDragThumbOffset: Integer;
+    FMouseDownOnUp,
+    FMouseDownOnDown,
+    FMouseDownOnThumb,
+    FMouseDownOnPageUp,
+    FMouseDownOnPageDown: boolean;
 
     function MouseToPos(X, Y: Integer): Integer;
     procedure DoPaintArrow(C: TCanvas; R: TRect; Typ: TATScrollElemType);
@@ -74,8 +83,10 @@ type
     function IsHorz: boolean;
     procedure DoUpdateThumbRect;
     procedure DoUpdatePosOnDrag(X, Y: Integer);
+    procedure DoScrollBy(NDelta: Integer);
     function GetPxAtScroll(APos: Integer): Integer;
 
+    procedure TimerTimer(Sender: TObject);
     procedure SetKind(Value: TScrollBarKind);
     procedure SetPos(Value: Integer);
     procedure SetMin(Value: Integer);
@@ -105,6 +116,7 @@ type
     property IndentBorder: Integer read FIndentBorder write FIndentBorder;
     property IndentRight: Integer read FIndentRight write FIndentRight;
     property IndentArrow: Integer read FIndentA write FIndentA;
+    property TimerDelay: Integer read FTimerDelay write FTimerDelay;
     property ColorBorder: TColor read FColorBorder write FColorBorder;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     property OnOwnerDraw: TATScrollDrawEvent read FOnOwnerDraw write FOnOwnerDraw;
@@ -131,6 +143,7 @@ begin
   FIndentBorder:= 1;
   FIndentRight:= 0;
   FIndentA:= 3;
+  FTimerDelay:= 70;
 
   FMin:= 0;
   FMax:= 100;
@@ -147,13 +160,18 @@ begin
   FBitmap.Width:= 1600;
   FBitmap.Height:= 60;
 
+  FTimer:= TTimer.Create(Self);
+  FTimer.Enabled:= false;
+  FTimer.Interval:= FTimerDelay;
+  FTimer.OnTimer:= {$ifdef fcp}@{$endif} TimerTimer;
+
   FMouseDown:= false;
-  FMouseDrag:= false;
   FMouseDragThumbOffset:= 0;
 end;
 
 destructor TATScroll.Destroy;
 begin
+  FTimer.Enabled:= false;
   FreeAndNil(FBitmap);
   inherited;
 end;
@@ -234,18 +252,27 @@ procedure TATScroll.MouseDown(Button: TMouseButton; Shift: TShiftState;
   X, Y: Integer);
 begin
   FMouseDown:= true;
-  FMouseDrag:= PtInRect(FInThumb, Point(X, Y));
+  FMouseDownOnThumb:= PtInRect(FInThumb, Point(X, Y));
+  FMouseDownOnUp:= PtInRect(FInUp, Point(X, Y));
+  FMouseDownOnDown:= PtInRect(FInDown, Point(X, Y));
+  FMouseDownOnPageUp:= PtInRect(FInPageUp, Point(X, Y));
+  FMouseDownOnPageDown:= PtInRect(FInPageDown, Point(X, Y));
+
   if IsHorz then
     FMouseDragThumbOffset:= X-FInThumb.Left
   else
     FMouseDragThumbOffset:= Y-FInThumb.Top;
+
+  FTimer.Enabled:= FMouseDownOnUp or FMouseDownOnDown
+    or FMouseDownOnPageUp or FMouseDownOnPageDown;
 end;
 
 procedure TATScroll.MouseUp(Button: TMouseButton; Shift: TShiftState;
   X, Y: Integer);
 begin
   FMouseDown:= false;
-  FMouseDrag:= false;
+  FMouseDownOnThumb:= false;
+  FTimer.Enabled:= false;
 end;
 
 procedure TATScroll.Resize;
@@ -378,7 +405,10 @@ const
 var
   R: TRect;
 begin
-  FInThumb:= Rect(FIn.Left, FIn.Top, FIn.Left, FIn.Top);
+  FInThumb:= Rect(0, 0, 0, 0);
+  FInPageUp:= Rect(0, 0, 0, 0);
+  FInPageDown:= Rect(0, 0, 0, 0);
+
   if IsHorz then
   begin
     if FIn.Right-FIn.Left<cMinView then Exit;
@@ -402,6 +432,17 @@ begin
     R.Bottom:= Math.Min(R.Bottom, FIn.Bottom);
   end;
   FInThumb:= R;
+
+  if IsHorz then
+  begin
+    FInPageUp:= Rect(FIn.Left, FIn.Top, FInThumb.Left, FIn.Bottom);
+    FInPageDown:= Rect(FInThumb.Right+1, FIn.Top, FIn.Right, FIn.Bottom);
+  end
+  else
+  begin
+    FInPageUp:= Rect(FIn.Left, FIn.Top, FIn.Right, FInThumb.Top);
+    FInPageDown:= Rect(FIn.Left, FInThumb.Bottom+1, FIn.Right, FIn.Bottom);
+  end;
 end;
 
 procedure TATScroll.DoPaintThumb(C: TCanvas);
@@ -497,7 +538,7 @@ procedure TATScroll.MouseMove(Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
 
-  if FMouseDrag then
+  if FMouseDownOnThumb then
   begin
     DoUpdatePosOnDrag(X, Y);
     Exit
@@ -522,6 +563,37 @@ begin
   N:= Math.Max(N, FMin);
   N:= Math.Min(N, FMax-FPage);
   SetPos(N);
+end;
+
+procedure TATScroll.DoScrollBy(NDelta: Integer);
+var
+  N: Integer;
+begin
+  N:= FPos;
+  Inc(N, NDelta);
+  if (NDelta>0) then
+    N:= Math.Min(N, FMax-FPage);
+  SetPos(N);
+end;
+
+procedure TATScroll.TimerTimer(Sender: TObject);
+var
+  P: TPoint;
+begin
+  P:= Mouse.CursorPos;
+  P:= ScreenToClient(P);
+
+  if FMouseDownOnDown and PtInRect(FInDown, P) then
+    DoScrollBy(1)
+  else
+  if FMouseDownOnUp and PtInRect(FInUp, P) then
+    DoScrollBy(-1)
+  else
+  if FMouseDownOnPageDown and PtInRect(FInPageDown, P) then
+    DoScrollBy(FPage)  
+  else
+  if FMouseDownOnPageUp and PtInRect(FInPageUp, P) then
+    DoScrollBy(-FPage);
 end;
 
 end.
