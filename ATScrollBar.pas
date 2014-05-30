@@ -1,3 +1,19 @@
+{
+ATScrollBar for Delphi/Lazarus
+Copyright (c) Alexey Torgashin (uvviewsoft.com)
+License: MIT
+
+Supports most of needed features:
+- default look is flat
+- default arrow mark of any size
+- border of any size
+- owner-draw (you can paint OS theme)
+mouse:
+- click and holding mouse on arrows
+- click and holding mouse on page-up (area above thumb) / page-down (area below thumb)
+- drag of thumb
+}
+
 unit ATScrollBar;
 
 interface
@@ -163,7 +179,7 @@ begin
   FTimer:= TTimer.Create(Self);
   FTimer.Enabled:= false;
   FTimer.Interval:= FTimerDelay;
-  FTimer.OnTimer:= {$ifdef fcp}@{$endif} TimerTimer;
+  FTimer.OnTimer:= {$ifdef fpc}@{$endif} TimerTimer;
 
   FMouseDown:= false;
   FMouseDragThumbOffset:= 0;
@@ -251,7 +267,7 @@ end;
 procedure TATScroll.MouseDown(Button: TMouseButton; Shift: TShiftState;
   X, Y: Integer);
 begin
-  FMouseDown:= true;
+  FMouseDown:= Button=mbLeft;
   FMouseDownOnThumb:= PtInRect(FInThumb, Point(X, Y));
   FMouseDownOnUp:= PtInRect(FInUp, Point(X, Y));
   FMouseDownOnDown:= PtInRect(FInDown, Point(X, Y));
@@ -263,8 +279,11 @@ begin
   else
     FMouseDragThumbOffset:= Y-FInThumb.Top;
 
-  FTimer.Enabled:= FMouseDownOnUp or FMouseDownOnDown
-    or FMouseDownOnPageUp or FMouseDownOnPageDown;
+  FTimer.Enabled:= FMouseDown and
+    (FMouseDownOnUp or
+     FMouseDownOnDown or
+     FMouseDownOnPageUp or
+     FMouseDownOnPageDown);
 end;
 
 procedure TATScroll.MouseUp(Button: TMouseButton; Shift: TShiftState;

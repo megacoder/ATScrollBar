@@ -51,7 +51,7 @@ begin
   bh.Parent:= Panel1;
   bh.Align:= alBottom;
   bh.Kind:= sbHorizontal;
-  bh.OnChange:= ChangeH;
+  bh.OnChange:= {$ifdef fpc}@{$endif} ChangeH;
   bh.Min:= 20;
   bh.Max:= 200;
 
@@ -60,7 +60,7 @@ begin
   bv.Parent:= Panel1;
   bv.Align:= alRight;
   bv.Kind:= sbVertical;
-  bv.OnChange:= ChangeV;
+  bv.OnChange:= {$ifdef fpc}@{$endif} ChangeV;
   bv.Min:= 10;
   bv.Max:= 100;
 
@@ -69,7 +69,8 @@ begin
   bh.IndentRight:= bv.Width;
 end;
 
-procedure TFormDemo.DrawEvent;
+procedure TFormDemo.DrawEvent(S: TObject; AType: TATScrollElemType;
+  ACanvas: TCanvas; const ARect: TRect; var ACanDo: boolean);
 const
   cc: array[TATScrollElemType] of TColor = (
     clYellow, clYellow,
@@ -85,8 +86,8 @@ procedure TFormDemo.chkDrawClick(Sender: TObject);
 begin
   if chkDraw.Checked then
   begin
-    bh.OnOwnerDraw:= DrawEvent;
-    bv.OnOwnerDraw:= DrawEvent;
+    bh.OnOwnerDraw:= {$ifdef fpc}@{$endif} DrawEvent;
+    bv.OnOwnerDraw:= {$ifdef fpc}@{$endif} DrawEvent;
   end
   else
   begin
