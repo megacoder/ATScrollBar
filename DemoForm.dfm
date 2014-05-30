@@ -32,37 +32,45 @@ object FormDemo: TFormDemo
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    object trackV: TTrackBar
-      Left = 232
-      Top = 0
-      Width = 33
-      Height = 177
-      Max = 90
-      Orientation = trVertical
-      PageSize = 20
-      Frequency = 10
-      TabOrder = 0
-      OnChange = trackVChange
+    object Label1: TLabel
+      Left = 16
+      Top = 160
+      Width = 53
+      Height = 13
+      Caption = 'Border size'
     end
-    object trackH: TTrackBar
-      Left = 8
-      Top = 168
-      Width = 225
-      Height = 33
-      Max = 90
-      PageSize = 20
-      Frequency = 10
-      TabOrder = 1
-      OnChange = trackHChange
+    object labv: TLabel
+      Left = 24
+      Top = 32
+      Width = 6
+      Height = 13
+      Caption = 'V'
+    end
+    object labh: TLabel
+      Left = 24
+      Top = 48
+      Width = 7
+      Height = 13
+      Caption = 'H'
     end
     object chkDraw: TCheckBox
-      Left = 24
-      Top = 208
+      Left = 16
+      Top = 184
       Width = 153
       Height = 17
       Caption = 'Owner-draw'
-      TabOrder = 2
+      TabOrder = 0
       OnClick = chkDrawClick
+    end
+    object trackBor: TTrackBar
+      Left = 112
+      Top = 152
+      Width = 113
+      Height = 33
+      Max = 5
+      PageSize = 20
+      TabOrder = 1
+      OnChange = trackBorChange
     end
   end
   object Panel2: TPanel

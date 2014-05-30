@@ -22,8 +22,10 @@ type
     aseArrowDown,
     aseArrowLeft,
     aseArrowRight,
-    aseScrollArea,
-    aseScrollThumb
+    aseScrollAreaV,
+    aseScrollAreaH,
+    aseScrollThumbV,
+    aseScrollThumbH
     );
 
 type
@@ -54,11 +56,11 @@ type
     FInDown: TRect; //area for down or right arrow
     FInThumb: TRect; //area for scroll-thumb
     FBitmap: TBitmap;
+    FOnChange: TNotifyEvent;
     FOnOwnerDraw: TATScrollDrawEvent;
 
     //drag-drop
     FMouseDown: boolean;
-    FMouseDownPnt: TPoint;
     FMouseDrag: boolean;
     FMouseDragThumbOffset: Integer;
 
@@ -102,6 +104,7 @@ type
     property IndentRight: Integer read FIndentRight write FIndentRight;
     property IndentArrow: Integer read FIndentA write FIndentA;
     property ColorBorder: TColor read FColorBorder write FColorBorder;
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
     property OnOwnerDraw: TATScrollDrawEvent read FOnOwnerDraw write FOnOwnerDraw;
   end;
 
@@ -143,8 +146,8 @@ begin
   FBitmap.Height:= 60;
 
   FMouseDown:= false;
-  FMouseDownPnt:= Point(0, 0);
   FMouseDrag:= false;
+  FMouseDragThumbOffset:= 0;
 end;
 
 destructor TATScroll.Destroy;
@@ -211,8 +214,11 @@ begin
 end;
 
 procedure TATScroll.DoPaintBack(C: TCanvas);
+var
+  Typ: TATScrollElemType;
 begin
-  if DoDrawEvent(aseScrollArea, C, FIn) then
+  if IsHorz then Typ:= aseScrollAreaH else Typ:= aseScrollAreaV;
+  if DoDrawEvent(Typ, C, FIn) then
   begin
     C.Brush.Color:= Color;
     C.FillRect(FIn);
@@ -224,8 +230,7 @@ procedure TATScroll.MouseDown(Button: TMouseButton; Shift: TShiftState;
   X, Y: Integer);
 begin
   FMouseDown:= true;
-  FMouseDownPnt:= Point(X, Y);
-
+  FMouseDrag:= PtInRect(FInThumb, Point(X, Y));
   if IsHorz then
     FMouseDragThumbOffset:= X-FInThumb.Left
   else
@@ -237,7 +242,6 @@ procedure TATScroll.MouseUp(Button: TMouseButton; Shift: TShiftState;
 begin
   FMouseDown:= false;
   FMouseDrag:= false;
-  FMouseDownPnt:= Point(0, 0);
 end;
 
 procedure TATScroll.Resize;
@@ -361,7 +365,7 @@ begin
     N0:= FIn.Top;
     NLen:= FIn.Bottom-FIn.Top;
   end;
-  Result:= N0 + APos * NLen div (FMax-FMin);
+  Result:= N0 + (APos-FMin) * NLen div (FMax-FMin);
 end;
 
 procedure TATScroll.DoUpdateThumbRect;
@@ -370,11 +374,10 @@ const
 var
   R: TRect;
 begin
+  FInThumb:= Rect(FIn.Left, FIn.Top, FIn.Left, FIn.Top);
   if IsHorz then
   begin
-    if FIn.Right-FIn.Left<cMinView then
-      begin FInThumb:= Rect(0, 0, 0, 0); Exit end;
-
+    if FIn.Right-FIn.Left<cMinView then Exit;
     R.Top:= FIn.Top;
     R.Bottom:= FIn.Bottom;
     R.Left:= GetPxAtScroll(FPos);
@@ -385,9 +388,7 @@ begin
   end
   else
   begin
-    if FIn.Bottom-FIn.Top<cMinView then
-      begin FInThumb:= Rect(0, 0, 0, 0); Exit end;
-
+    if FIn.Bottom-FIn.Top<cMinView then Exit;
     R.Left:= FIn.Left;
     R.Right:= FIn.Right;
     R.Top:= GetPxAtScroll(FPos);
@@ -406,10 +407,13 @@ const
 var
   R: TRect;
   P: TPoint;
+  Typ: TATScrollElemType;
 begin
   R:= FInThumb;
   if IsRectEmpty(R) then Exit;
-  if not DoDrawEvent(aseScrollThumb, C, R) then Exit;
+
+  if IsHorz then Typ:= aseScrollThumbH else Typ:= aseScrollThumbV;
+  if not DoDrawEvent(Typ, C, R) then Exit;
 
   C.Brush.Color:= FColorFill;
   C.Pen.Color:= FColorRect;
@@ -472,12 +476,14 @@ end;
 
 procedure TATScroll.SetPos(Value: Integer);
 begin
+  Value:= Math.Min(Value, FMax);
+  Value:= Math.Max(Value, FMin);
   if FPos<>Value then
   begin
     FPos:= Value;
-    FPos:= Math.Min(FPos, FMax);
-    FPos:= Math.Max(FPos, FMin);
     Invalidate;
+    if Assigned(FOnChange) then
+      FOnChange(Self);
   end;
 end;
 
@@ -487,13 +493,6 @@ begin
 
   if FMouseDrag then
   begin
-    DoUpdatePosOnDrag(X, Y);
-    Exit
-  end;
-
-  if FMouseDown and not FMouseDrag and PtInRect(FInThumb, Point(X, Y)) then
-  begin
-    FMouseDrag:= true;
     DoUpdatePosOnDrag(X, Y);
     Exit
   end;
