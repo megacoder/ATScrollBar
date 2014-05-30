@@ -74,8 +74,8 @@ procedure TFormDemo.DrawEvent(S: TObject; AType: TATScrollElemType;
 const
   cc: array[TATScrollElemType] of TColor = (
     clYellow, clYellow,
-    clCream, clGreen,
-    clLime, clLime,
+    clCream, clCream,
+    $30a030, $00e000, 
     $e0a0c0, clNavy,
     clRed div 2, clRed,
     $e05050);
