@@ -95,13 +95,20 @@ type
     FMouseDownOnPageUp,
     FMouseDownOnPageDown: boolean;
 
-    function MouseToPos(X, Y: Integer): Integer;
-    procedure DoPaintArrow(C: TCanvas; R: TRect; Typ: TATScrollElemType);
+    procedure DoPaintArrow(C: TCanvas; const R: TRect; Typ: TATScrollElemType);
     procedure DoPaintThumb(C: TCanvas);
     procedure DoPaintBack(C: TCanvas);
     procedure DoPaintBackScrolled(C: TCanvas);
     procedure DoPaintTo(C: TCanvas);
+
+    procedure DoPaintStd_IndentRight(C: TCanvas; const R: TRect);
+    procedure DoPaintStd_Back(C: TCanvas; const R: TRect);
+    procedure DoPaintStd_BackScrolled(C: TCanvas; const R: TRect);
+    procedure DoPaintStd_Arrow(C: TCanvas; R: TRect; Typ: TATScrollElemType);
+    procedure DoPaintStd_Thumb(C: TCanvas; const R: TRect);
+
     function IsHorz: boolean;
+    function MouseToPos(X, Y: Integer): Integer;
     procedure DoUpdateThumbRect;
     procedure DoUpdatePosOnDrag(X, Y: Integer);
     procedure DoScrollBy(NDelta: Integer);
@@ -219,10 +226,7 @@ begin
 
   if not IsRectEmpty(FInIndent) then
     if DoDrawEvent(aseIndentRight, C, FInIndent) then
-    begin
-      C.Brush.Color:= Color;
-      C.FillRect(FInIndent);
-    end;
+      DoPaintStd_IndentRight(C, FInIndent);
 
   C.Brush.Color:= FColorBorder;
   C.FillRect(FIn);
@@ -268,10 +272,7 @@ var
 begin
   if IsHorz then Typ:= aseScrollAreaH else Typ:= aseScrollAreaV;
   if DoDrawEvent(Typ, C, FIn) then
-  begin
-    C.Brush.Color:= Color;
-    C.FillRect(FIn);
-  end;
+    DoPaintStd_Back(C, FIn);
 end;
 
 procedure TATScroll.DoPaintBackScrolled(C: TCanvas);
@@ -282,17 +283,11 @@ begin
 
   if FMouseDown and FMouseDownOnPageUp then
     if DoDrawEvent(Typ, C, FInPageUp) then
-    begin
-      C.Brush.Color:= FColorScrolled;
-      C.FillRect(FInPageUp);
-    end;
+      DoPaintStd_BackScrolled(C, FInPageUp);
 
   if FMouseDown and FMouseDownOnPageDown then
     if DoDrawEvent(Typ, C, FInPageDown) then
-    begin
-      C.Brush.Color:= FColorScrolled;
-      C.FillRect(FInPageDown);
-    end;
+      DoPaintStd_BackScrolled(C, FInPageDown);
 end;
 
 
@@ -377,14 +372,19 @@ begin
   end;
 end;
 
-procedure TATScroll.DoPaintArrow(C: TCanvas; R: TRect;
+procedure TATScroll.DoPaintArrow(C: TCanvas; const R: TRect;
+  Typ: TATScrollElemType);
+begin
+  if DoDrawEvent(Typ, C, R) then
+    DoPaintStd_Arrow(C, R, Typ);
+end;    
+
+procedure TATScroll.DoPaintStd_Arrow(C: TCanvas; R: TRect;
   Typ: TATScrollElemType);
 var
   P, P1, P2, P3: TPoint;
   cc: Integer;
 begin
-  if not DoDrawEvent(Typ, C, R) then Exit;
-
   C.Brush.Color:= FColorRect;
   C.FillRect(R);
 
@@ -498,20 +498,26 @@ begin
 end;
 
 procedure TATScroll.DoPaintThumb(C: TCanvas);
+var
+  Typ: TATScrollElemType;
+begin
+  if IsRectEmpty(FInThumb) then Exit;
+  if IsHorz then
+    Typ:= aseScrollThumbH
+  else
+    Typ:= aseScrollThumbV;
+
+  if DoDrawEvent(Typ, C, FInThumb) then
+    DoPaintStd_Thumb(C, FInThumb);
+end;
+
+procedure TATScroll.DoPaintStd_Thumb(C: TCanvas; const R: TRect);
 const
   cMinMark = 20;
   cMarkOf = 4;
 var
-  R: TRect;
   P: TPoint;
-  Typ: TATScrollElemType;
 begin
-  R:= FInThumb;
-  if IsRectEmpty(R) then Exit;
-
-  if IsHorz then Typ:= aseScrollThumbH else Typ:= aseScrollThumbV;
-  if not DoDrawEvent(Typ, C, R) then Exit;
-
   C.Brush.Color:= FColorFill;
   C.Pen.Color:= FColorRect;
   C.Rectangle(R);
@@ -647,5 +653,24 @@ begin
   if FMouseDownOnPageUp and PtInRect(FInPageUp, P) then
     DoScrollBy(-FPage);
 end;
+
+procedure TATScroll.DoPaintStd_IndentRight(C: TCanvas; const R: TRect);
+begin
+  C.Brush.Color:= Color;
+  C.FillRect(R);
+end;
+
+procedure TATScroll.DoPaintStd_Back(C: TCanvas; const R: TRect);
+begin
+  C.Brush.Color:= Color;
+  C.FillRect(R);
+end;
+
+procedure TATScroll.DoPaintStd_BackScrolled(C: TCanvas; const R: TRect);
+begin
+  C.Brush.Color:= FColorScrolled;
+  C.FillRect(R);
+end;
+
 
 end.
