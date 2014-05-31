@@ -34,42 +34,49 @@ object FormDemo: TFormDemo
     TabOrder = 0
     object Label1: TLabel
       Left = 16
-      Top = 160
+      Top = 120
       Width = 53
       Height = 13
       Caption = 'Border size'
     end
     object labv: TLabel
       Left = 24
-      Top = 32
+      Top = 16
       Width = 6
       Height = 13
       Caption = 'V'
     end
     object labh: TLabel
       Left = 24
-      Top = 48
+      Top = 32
       Width = 7
       Height = 13
       Caption = 'H'
     end
     object Label2: TLabel
       Left = 16
-      Top = 128
+      Top = 88
       Width = 45
       Height = 13
       Caption = 'Page size'
     end
     object Label3: TLabel
       Left = 16
-      Top = 96
+      Top = 56
       Width = 19
       Height = 13
       Caption = 'Size'
     end
+    object Label4: TLabel
+      Left = 16
+      Top = 152
+      Width = 62
+      Height = 13
+      Caption = 'Arrow longer'
+    end
     object chkDraw: TCheckBox
       Left = 16
-      Top = 224
+      Top = 200
       Width = 153
       Height = 17
       Caption = 'Owner-draw'
@@ -78,40 +85,56 @@ object FormDemo: TFormDemo
     end
     object trackBor: TTrackBar
       Left = 112
-      Top = 152
+      Top = 112
       Width = 113
-      Height = 33
+      Height = 30
       Max = 4
       PageSize = 20
       Position = 1
-      TabOrder = 1
+      TabOrder = 3
+      ThumbLength = 16
       OnChange = trackBorChange
     end
     object trackPage: TTrackBar
       Left = 112
-      Top = 120
+      Top = 80
       Width = 113
-      Height = 33
+      Height = 30
       Max = 100
       Min = 1
       PageSize = 20
       Frequency = 20
       Position = 20
       TabOrder = 2
+      ThumbLength = 16
       OnChange = trackPageChange
     end
     object trackSize: TTrackBar
       Left = 112
-      Top = 88
+      Top = 48
       Width = 113
-      Height = 33
+      Height = 30
       Max = 40
       Min = 8
       PageSize = 5
       Frequency = 20
       Position = 20
-      TabOrder = 3
+      TabOrder = 1
+      ThumbLength = 16
       OnChange = trackSizeChange
+    end
+    object trackLonger: TTrackBar
+      Left = 112
+      Top = 144
+      Width = 113
+      Height = 30
+      Max = 7
+      Min = -7
+      PageSize = 20
+      Frequency = 2
+      TabOrder = 4
+      ThumbLength = 16
+      OnChange = trackLongerChange
     end
   end
   object Panel2: TPanel

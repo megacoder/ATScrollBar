@@ -58,6 +58,7 @@ type
     FIndentBorder: Integer;
     FIndentRight: Integer;
     FIndentArrow: Integer;
+    FIndentArrLonger: Integer;
     FTimerDelay: Integer;
 
     FColorBorder: TColor;
@@ -87,7 +88,7 @@ type
 
     //drag-drop
     FMouseDown: boolean;
-    FMouseDragThumbOffset: Integer;
+    FMouseDragOffset: Integer;
     FMouseDownOnUp,
     FMouseDownOnDown,
     FMouseDownOnThumb,
@@ -136,6 +137,7 @@ type
     property IndentBorder: Integer read FIndentBorder write FIndentBorder;
     property IndentRight: Integer read FIndentRight write FIndentRight;
     property IndentArrow: Integer read FIndentArrow write FIndentArrow;
+    property IndentArrLonger: Integer read FIndentArrLonger write FIndentArrLonger;
     property TimerDelay: Integer read FTimerDelay write FTimerDelay;
     property ColorBorder: TColor read FColorBorder write FColorBorder;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
@@ -163,7 +165,7 @@ begin
   FIndentBorder:= 1;
   FIndentRight:= 0;
   FIndentArrow:= 3;
-  FTimerDelay:= 80;
+  FIndentArrLonger:= 0;
 
   FMin:= 0;
   FMax:= 100;
@@ -181,13 +183,14 @@ begin
   FBitmap.Width:= 1600;
   FBitmap.Height:= 60;
 
+  FTimerDelay:= 80;
   FTimer:= TTimer.Create(Self);
   FTimer.Enabled:= false;
   FTimer.Interval:= FTimerDelay;
   FTimer.OnTimer:= {$ifdef fpc}@{$endif} TimerTimer;
 
   FMouseDown:= false;
-  FMouseDragThumbOffset:= 0;
+  FMouseDragOffset:= 0;
 end;
 
 destructor TATScroll.Destroy;
@@ -233,6 +236,7 @@ begin
   if IsHorz then
   begin
     FSize:= Math.Min(FIn.Bottom-FIn.Top, (FIn.Right-FIn.Left) div 2);
+    Inc(FSize, FIndentArrLonger);
     FInUp:= Rect(FIn.Left, FIn.Top, FIn.Left+FSize, FIn.Bottom);
     FInDown:= Rect(FIn.Right-FSize, FIn.Top, FIn.Right, FIn.Bottom);
     DoPaintArrow(C, FInUp, aseArrowLeft);
@@ -243,6 +247,7 @@ begin
   else
   begin
     FSize:= Math.Min(FIn.Right-FIn.Left, (FIn.Bottom-FIn.Top) div 2);
+    Inc(FSize, FIndentArrLonger);
     FInUp:= Rect(FIn.Left, FIn.Top, FIn.Right, FIn.Top+FSize);
     FInDown:= Rect(FIn.Left, FIn.Bottom-FSize, FIn.Right, FIn.Bottom);
     DoPaintArrow(C, FInUp, aseArrowUp);
@@ -302,9 +307,9 @@ begin
   FMouseDownOnPageDown:= PtInRect(FInPageDown, Point(X, Y));
 
   if IsHorz then
-    FMouseDragThumbOffset:= X-FInThumb.Left
+    FMouseDragOffset:= X-FInThumb.Left
   else
-    FMouseDragThumbOffset:= Y-FInThumb.Top;
+    FMouseDragOffset:= Y-FInThumb.Top;
 
   FTimer.Enabled:= FMouseDown and
     (FMouseDownOnUp or
@@ -605,8 +610,8 @@ var
   N: Integer;
 begin
   N:= MouseToPos(
-    X-FMouseDragThumbOffset,
-    Y-FMouseDragThumbOffset);
+    X-FMouseDragOffset,
+    Y-FMouseDragOffset);
   N:= Math.Max(N, FMin);
   N:= Math.Min(N, FMax-FPage);
   SetPos(N);

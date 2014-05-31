@@ -20,11 +20,14 @@ type
     trackPage: TTrackBar;
     Label3: TLabel;
     trackSize: TTrackBar;
+    Label4: TLabel;
+    trackLonger: TTrackBar;
     procedure FormCreate(Sender: TObject);
     procedure chkDrawClick(Sender: TObject);
     procedure trackBorChange(Sender: TObject);
     procedure trackPageChange(Sender: TObject);
     procedure trackSizeChange(Sender: TObject);
+    procedure trackLongerChange(Sender: TObject);
   private
     { Private declarations }
     procedure ChangeH(S: TObject);
@@ -135,6 +138,14 @@ begin
   bv.Width:= n;
   bh.IndentRight:= n;
   bh.Height:= n;
+end;
+
+procedure TFormDemo.trackLongerChange(Sender: TObject);
+begin
+  bh.IndentArrLonger:= trackLonger.Position;
+  bv.IndentArrLonger:= trackLonger.Position;
+  bh.Invalidate;
+  bv.Invalidate;
 end;
 
 end.
