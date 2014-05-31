@@ -7,6 +7,7 @@ Supports most of needed features:
 - default look is flat
 - arrow mark of any size
 - border of any size
+- corner indent (for horz+vert at same form)
 - owner-draw (you can paint OS theme)
 mouse:
 - click and holding mouse on arrows
@@ -44,7 +45,7 @@ type
     aseScrollAreaV,
     aseScrolledAreaH,
     aseScrolledAreaV,
-    aseIndentRight
+    aseCorner
     );
 
 type
@@ -56,7 +57,7 @@ type
   private
     FKind: TScrollBarKind;
     FIndentBorder: Integer;
-    FIndentRight: Integer;
+    FIndentCorner: Integer;
     FIndentArrow: Integer;
     FIndentArrLonger: Integer;
     FTimerDelay: Integer;
@@ -77,7 +78,7 @@ type
     FInUp: TRect; //area for up or left arrow
     FInDown: TRect; //area for down or right arrow
     FInThumb: TRect; //area for scroll-thumb
-    FInIndent: TRect;
+    FInCorner: TRect;
     FInPageUp: TRect;
     FInPageDown: TRect;
 
@@ -101,7 +102,7 @@ type
     procedure DoPaintBackScrolled(C: TCanvas);
     procedure DoPaintTo(C: TCanvas);
 
-    procedure DoPaintStd_IndentRight(C: TCanvas; const R: TRect);
+    procedure DoPaintStd_Corner(C: TCanvas; const R: TRect);
     procedure DoPaintStd_Back(C: TCanvas; const R: TRect);
     procedure DoPaintStd_BackScrolled(C: TCanvas; const R: TRect);
     procedure DoPaintStd_Arrow(C: TCanvas; R: TRect; Typ: TATScrollElemType);
@@ -142,7 +143,7 @@ type
   published
     property Kind: TScrollBarKind read FKind write SetKind;
     property IndentBorder: Integer read FIndentBorder write FIndentBorder;
-    property IndentRight: Integer read FIndentRight write FIndentRight;
+    property IndentCorner: Integer read FIndentCorner write FIndentCorner;
     property IndentArrow: Integer read FIndentArrow write FIndentArrow;
     property IndentArrLonger: Integer read FIndentArrLonger write FIndentArrLonger;
     property TimerDelay: Integer read FTimerDelay write FTimerDelay;
@@ -170,7 +171,7 @@ begin
 
   FKind:= sbHorizontal;
   FIndentBorder:= 1;
-  FIndentRight:= 0;
+  FIndentCorner:= 0;
   FIndentArrow:= 3;
   FIndentArrLonger:= 0;
 
@@ -221,12 +222,22 @@ var
   fSize: Integer;
 begin
   FIn:= ClientRect;
-  FInIndent:= Rect(ClientWidth-FIndentRight, 0, ClientWidth, ClientHeight);
-  Dec(FIn.Right, FIndentRight);
 
-  if not IsRectEmpty(FInIndent) then
-    if DoDrawEvent(aseIndentRight, C, FInIndent) then
-      DoPaintStd_IndentRight(C, FInIndent);
+  if FIndentCorner>0 then
+  begin
+    FInCorner:= Rect(ClientWidth-FIndentCorner, 0, ClientWidth, ClientHeight);
+    Dec(FIn.Right, FIndentCorner);
+  end
+  else
+  if FIndentCorner<0 then
+  begin
+    FInCorner:= Rect(0, 0, Abs(FIndentCorner), ClientHeight);
+    Inc(FIn.Left, Abs(FIndentCorner));
+  end;
+
+  if not IsRectEmpty(FInCorner) then
+    if DoDrawEvent(aseCorner, C, FInCorner) then
+      DoPaintStd_Corner(C, FInCorner);
 
   C.Brush.Color:= FColorBorder;
   C.FillRect(FIn);
@@ -654,7 +665,7 @@ begin
     DoScrollBy(-FPage);
 end;
 
-procedure TATScroll.DoPaintStd_IndentRight(C: TCanvas; const R: TRect);
+procedure TATScroll.DoPaintStd_Corner(C: TCanvas; const R: TRect);
 begin
   C.Brush.Color:= Color;
   C.FillRect(R);

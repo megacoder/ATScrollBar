@@ -36,7 +36,7 @@ type
       ACanvas: TCanvas; const ARect: TRect; var ACanDo: boolean);
   public
     { Public declarations }
-    bh, bv: TATScroll;
+    bh, bv, bbv, bbh: TATScroll;
   end;
 
 var
@@ -69,7 +69,21 @@ begin
 
   bv.Width:= 22;
   bh.Height:= bv.Width;
-  bh.IndentRight:= bv.Width;
+  bh.IndentCorner:= bv.Width; //positive
+
+  //--------------
+  bbh:= TATScroll.Create(Self);
+  bbh.Parent:= Panel2;
+  bbh.Height:= 18;
+  bbh.Align:= alBottom;
+  bbh.Kind:= sbHorizontal;
+  bbh.IndentCorner:= -bbh.Height; //negative
+
+  bbv:= TATScroll.Create(Self);
+  bbv.Parent:= Panel2;
+  bbv.Width:= bbh.Height;
+  bbv.Align:= alLeft;
+  bbv.Kind:= sbVertical;
 end;
 
 procedure TFormDemo.DrawEvent(S: TObject; AType: TATScrollElemType;
@@ -136,7 +150,7 @@ begin
   bv.IndentArrow:= n div 5;
   bh.IndentArrow:= bv.IndentArrow;
   bv.Width:= n;
-  bh.IndentRight:= n;
+  bh.IndentCorner:= n;
   bh.Height:= n;
 end;
 
