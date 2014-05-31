@@ -74,13 +74,20 @@ object FormDemo: TFormDemo
       Height = 13
       Caption = 'Arrow longer'
     end
+    object Label5: TLabel
+      Left = 16
+      Top = 184
+      Width = 66
+      Height = 13
+      Caption = 'Corner indent'
+    end
     object chkDraw: TCheckBox
       Left = 16
-      Top = 200
+      Top = 232
       Width = 153
       Height = 17
       Caption = 'Owner-draw'
-      TabOrder = 0
+      TabOrder = 6
       OnClick = chkDrawClick
     end
     object trackBor: TTrackBar
@@ -91,7 +98,7 @@ object FormDemo: TFormDemo
       Max = 4
       PageSize = 20
       Position = 1
-      TabOrder = 3
+      TabOrder = 2
       ThumbLength = 16
       OnChange = trackBorChange
     end
@@ -105,7 +112,7 @@ object FormDemo: TFormDemo
       PageSize = 20
       Frequency = 20
       Position = 20
-      TabOrder = 2
+      TabOrder = 1
       ThumbLength = 16
       OnChange = trackPageChange
     end
@@ -119,7 +126,7 @@ object FormDemo: TFormDemo
       PageSize = 5
       Frequency = 20
       Position = 20
-      TabOrder = 1
+      TabOrder = 0
       ThumbLength = 16
       OnChange = trackSizeChange
     end
@@ -128,13 +135,38 @@ object FormDemo: TFormDemo
       Top = 144
       Width = 113
       Height = 30
-      Max = 7
-      Min = -7
+      Min = -10
       PageSize = 20
-      Frequency = 2
-      TabOrder = 4
+      Frequency = 5
+      TabOrder = 3
       ThumbLength = 16
       OnChange = trackLongerChange
+    end
+    object trackCornerV: TTrackBar
+      Left = 112
+      Top = 176
+      Width = 113
+      Height = 30
+      Max = 30
+      Min = -30
+      PageSize = 20
+      Frequency = 10
+      TabOrder = 4
+      ThumbLength = 16
+      OnChange = trackCornerVChange
+    end
+    object trackCornerH: TTrackBar
+      Left = 232
+      Top = 176
+      Width = 113
+      Height = 30
+      Max = 30
+      Min = -30
+      PageSize = 40
+      Frequency = 10
+      TabOrder = 5
+      ThumbLength = 16
+      OnChange = trackCornerHChange
     end
   end
   object Panel2: TPanel

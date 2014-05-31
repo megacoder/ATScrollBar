@@ -22,12 +22,17 @@ type
     trackSize: TTrackBar;
     Label4: TLabel;
     trackLonger: TTrackBar;
+    Label5: TLabel;
+    trackCornerV: TTrackBar;
+    trackCornerH: TTrackBar;
     procedure FormCreate(Sender: TObject);
     procedure chkDrawClick(Sender: TObject);
     procedure trackBorChange(Sender: TObject);
     procedure trackPageChange(Sender: TObject);
     procedure trackSizeChange(Sender: TObject);
     procedure trackLongerChange(Sender: TObject);
+    procedure trackCornerVChange(Sender: TObject);
+    procedure trackCornerHChange(Sender: TObject);
   private
     { Private declarations }
     procedure ChangeH(S: TObject);
@@ -160,6 +165,18 @@ begin
   bv.IndentArrLonger:= trackLonger.Position;
   bh.Invalidate;
   bv.Invalidate;
+end;
+
+procedure TFormDemo.trackCornerVChange(Sender: TObject);
+begin
+  bv.IndentCorner:= trackCornerV.Position;
+  bv.Invalidate;
+end;
+
+procedure TFormDemo.trackCornerHChange(Sender: TObject);
+begin
+  bh.IndentCorner:= trackCornerH.Position;
+  bh.Invalidate;
 end;
 
 end.

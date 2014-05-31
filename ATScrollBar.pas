@@ -111,6 +111,7 @@ type
     function IsHorz: boolean;
     function MouseToPos(X, Y: Integer): Integer;
     procedure DoUpdateThumbRect;
+    procedure DoUpdateCornerRect;
     procedure DoUpdatePosOnDrag(X, Y: Integer);
     procedure DoScrollBy(NDelta: Integer);
     function GetPxAtScroll(APos: Integer): Integer;
@@ -223,18 +224,7 @@ var
 begin
   FIn:= ClientRect;
 
-  if FIndentCorner>0 then
-  begin
-    FInCorner:= Rect(ClientWidth-FIndentCorner, 0, ClientWidth, ClientHeight);
-    Dec(FIn.Right, FIndentCorner);
-  end
-  else
-  if FIndentCorner<0 then
-  begin
-    FInCorner:= Rect(0, 0, Abs(FIndentCorner), ClientHeight);
-    Inc(FIn.Left, Abs(FIndentCorner));
-  end;
-
+  DoUpdateCornerRect;
   if not IsRectEmpty(FInCorner) then
     if DoDrawEvent(aseCorner, C, FInCorner) then
       DoPaintStd_Corner(C, FInCorner);
@@ -683,5 +673,37 @@ begin
   C.FillRect(R);
 end;
 
+procedure TATScroll.DoUpdateCornerRect;
+begin
+  FInCorner:= Rect(0, 0, 0, 0);
+  if IsHorz then
+  begin
+    if FIndentCorner>0 then
+    begin
+      FInCorner:= Rect(ClientWidth-FIndentCorner, 0, ClientWidth, ClientHeight);
+      Dec(FIn.Right, FIndentCorner);
+    end
+    else
+    if FIndentCorner<0 then
+    begin
+      FInCorner:= Rect(0, 0, Abs(FIndentCorner), ClientHeight);
+      Inc(FIn.Left, Abs(FIndentCorner));
+    end;
+  end
+  else
+  begin
+    if FIndentCorner>0 then
+    begin
+      FInCorner:= Rect(0, ClientHeight-FIndentCorner, ClientWidth, ClientHeight);
+      Dec(FIn.Bottom, FIndentCorner);
+    end
+    else
+    if FIndentCorner<0 then
+    begin
+      FInCorner:= Rect(0, 0, ClientWidth, Abs(FIndentCorner));
+      Inc(FIn.Top, Abs(FIndentCorner));
+    end;
+  end;
+end;
 
 end.
