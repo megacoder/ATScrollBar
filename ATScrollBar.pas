@@ -513,8 +513,8 @@ end;
 
 procedure TATScroll.DoPaintStd_Thumb(C: TCanvas; const R: TRect);
 const
-  cMinMark = 20;
-  cMarkOf = 4;
+  cMinMark = 20; //minimial size of thumb, after which thumb disappears
+  cMarkOf = 4; //offset from thumb edge to "|||" lines
 var
   P: TPoint;
 begin
@@ -527,24 +527,24 @@ begin
   begin
     if (R.Right-R.Left)>cMinMark then
     begin
-      C.MoveTo(P.X, FIn.Top+cMarkOf);
-      C.LineTo(P.X, FIn.Bottom-cMarkOf);
-      C.MoveTo(P.X-2, FIn.Top+cMarkOf);
-      C.LineTo(P.X-2, FIn.Bottom-cMarkOf);
-      C.MoveTo(P.X+2, FIn.Top+cMarkOf);
-      C.LineTo(P.X+2, FIn.Bottom-cMarkOf);
+      C.MoveTo(P.X  , R.Top+cMarkOf);
+      C.LineTo(P.X  , R.Bottom-cMarkOf);
+      C.MoveTo(P.X-2, R.Top+cMarkOf);
+      C.LineTo(P.X-2, R.Bottom-cMarkOf);
+      C.MoveTo(P.X+2, R.Top+cMarkOf);
+      C.LineTo(P.X+2, R.Bottom-cMarkOf);
     end;
   end
   else
   begin
     if (R.Bottom-R.Top)>cMinMark then
     begin
-      C.MoveTo(FIn.Left+cMarkOf, P.Y);
-      C.LineTo(FIn.Right-cMarkOf, P.Y);
-      C.MoveTo(FIn.Left+cMarkOf, P.Y-2);
-      C.LineTo(FIn.Right-cMarkOf, P.Y-2);
-      C.MoveTo(FIn.Left+cMarkOf, P.Y+2);
-      C.LineTo(FIn.Right-cMarkOf, P.Y+2);
+      C.MoveTo(R.Left+cMarkOf, P.Y);
+      C.LineTo(R.Right-cMarkOf, P.Y);
+      C.MoveTo(R.Left+cMarkOf, P.Y-2);
+      C.LineTo(R.Right-cMarkOf, P.Y-2);
+      C.MoveTo(R.Left+cMarkOf, P.Y+2);
+      C.LineTo(R.Right-cMarkOf, P.Y+2);
     end;
   end;
 end;
