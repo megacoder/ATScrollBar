@@ -3,7 +3,10 @@ unit DemoForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
+  {$ifndef fpc}
+  Windows, Messages,
+  {$endif}
+  SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, ExtCtrls, StdCtrls, ATScrollBar, ComCtrls;
 
 type
