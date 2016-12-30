@@ -5,7 +5,7 @@ Delphi/Lazarus component for lite scrollbar (not OS-themed).
 
 Sample
 
-![img](Demo.png?raw=true)
+![img](demo.png?raw=true)
 
 Info
 ====
