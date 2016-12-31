@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="10"/>
     <BuildModes Active="Default"/>
-    <Units Count="3">
+    <Units Count="4">
       <Unit0>
         <Filename Value="Demo.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -18,9 +18,9 @@
         <ComponentName Value="FormDemo"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="-1"/>
-        <WindowIndex Value="-1"/>
-        <TopLine Value="55"/>
+        <TopLine Value="8"/>
         <CursorPos X="32" Y="8"/>
         <UsageCount Value="20"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -29,12 +29,19 @@
         <Filename Value="../atscrollbar/atscrollbar.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ATScrollBar"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="-1"/>
+        <WindowIndex Value="-1"/>
         <TopLine Value="52"/>
         <UsageCount Value="20"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit2>
+      <Unit3>
+        <Filename Value="DemoForm.lfm"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="14" Y="10"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="LFM"/>
+      </Unit3>
     </Units>
     <General>
       <ActiveWindowIndexAtStart Value="-1"/>

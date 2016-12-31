@@ -5,19 +5,21 @@ unit ATScrollbar_Register;
 interface
 
 uses
-  Classes, SysUtils, ATScrollbar;
+  Classes, SysUtils, ATScrollbar, LResources;
 
 procedure Register;
 
 implementation
 
-//{$R atscrollbar.dcr}
 
 { Registration }
 procedure Register;
 begin
   RegisterComponents('Misc', [TATScroll]);
 end;
+
+initialization
+  {$I res/icons.lrs}
 
 end.
 
