@@ -154,6 +154,7 @@ type
   published
     property Align;
     property Anchors;
+    property BorderSpacing;
     property Enabled;
     property DoubleBuffered;
     property PopupMenu;
