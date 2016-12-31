@@ -17,6 +17,8 @@ mouse:
 
 unit ATScrollBar;
 
+{$MODE Delphi}
+
 interface
 
 {$ifndef FPC}
@@ -198,7 +200,7 @@ begin
   FTimer:= TTimer.Create(Self);
   FTimer.Enabled:= false;
   FTimer.Interval:= FTimerDelay;
-  FTimer.OnTimer:= {$ifdef fpc}@{$endif} TimerTimer;
+  FTimer.OnTimer:= TimerTimer;
 
   FMouseDown:= false;
   FMouseDragOffset:= 0;

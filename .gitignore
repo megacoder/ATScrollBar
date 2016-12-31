@@ -28,3 +28,5 @@
 # Delphi history and backups
 __history/
 *.~*
+out/
+lib/

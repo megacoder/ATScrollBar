@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="4">
+    <Name Value="atscrollbar_pkg"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Alexey Torgashin"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <SearchPaths>
+        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)/"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Description Value="Custom-drawn scrollbar, not OS dependant. Horz and vert."/>
+    <License Value="MPL 2.0, LGPL"/>
+    <Version Major="1"/>
+    <Files Count="2">
+      <Item1>
+        <Filename Value="atscrollbar.pas"/>
+        <UnitName Value="ATScrollBar"/>
+      </Item1>
+      <Item2>
+        <Filename Value="atscrollbar_register.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="ATScrollbar_Register"/>
+      </Item2>
+    </Files>
+    <RequiredPkgs Count="1">
+      <Item1>
+        <PackageName Value="LCL"/>
+      </Item1>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>
