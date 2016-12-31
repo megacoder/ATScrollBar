@@ -29,9 +29,9 @@
         <Filename Value="../atscrollbar/atscrollbar.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ATScrollBar"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="189"/>
-        <CursorPos X="20" Y="203"/>
+        <TopLine Value="52"/>
         <UsageCount Value="20"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit2>
