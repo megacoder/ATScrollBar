@@ -1,10 +1,10 @@
 object FormDemo: TFormDemo
   Left = 303
-  Height = 381
+  Height = 421
   Top = 282
   Width = 716
   Caption = 'ATScrollBar demo'
-  ClientHeight = 381
+  ClientHeight = 421
   ClientWidth = 716
   Font.Height = -13
   Font.Name = 'Default'
@@ -13,7 +13,7 @@ object FormDemo: TFormDemo
   LCLVersion = '1.7'
   object Splitter1: TSplitter
     Left = 257
-    Height = 381
+    Height = 421
     Top = 0
     Width = 9
     AutoSnap = False
@@ -21,12 +21,12 @@ object FormDemo: TFormDemo
   end
   object Panel1: TPanel
     Left = 266
-    Height = 381
+    Height = 421
     Top = 0
     Width = 450
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 381
+    ClientHeight = 421
     ClientWidth = 450
     TabOrder = 0
     object Label1: TLabel
@@ -89,7 +89,7 @@ object FormDemo: TFormDemo
       Left = 8
       Height = 24
       Top = 296
-      Width = 104
+      Width = 108
       Caption = 'Owner-draw'
       OnClick = chkDrawClick
       TabOrder = 6
@@ -169,10 +169,27 @@ object FormDemo: TFormDemo
       Position = 0
       TabOrder = 5
     end
+    object ListArrows: TListBox
+      Left = 160
+      Height = 104
+      Top = 272
+      Width = 200
+      Items.Strings = (
+        'arrows at edges'
+        'arrows below'
+        'arrows above'
+        'no arrows'
+      )
+      ItemHeight = 23
+      ItemIndex = 0
+      OnClick = ListArrowsClick
+      ScrollWidth = 198
+      TabOrder = 7
+    end
   end
   object Panel2: TPanel
     Left = 0
-    Height = 381
+    Height = 421
     Top = 0
     Width = 257
     Align = alLeft

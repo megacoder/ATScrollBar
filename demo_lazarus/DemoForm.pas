@@ -10,7 +10,11 @@ uses
   Dialogs, ExtCtrls, StdCtrls, ATScrollbar, ComCtrls;
 
 type
+
+  { TFormDemo }
+
   TFormDemo = class(TForm)
+    ListArrows: TListBox;
     Panel1: TPanel;
     Panel2: TPanel;
     Splitter1: TSplitter;
@@ -30,6 +34,7 @@ type
     trackCornerH: TTrackBar;
     procedure FormCreate(Sender: TObject);
     procedure chkDrawClick(Sender: TObject);
+    procedure ListArrowsClick(Sender: TObject);
     procedure trackBorChange(Sender: TObject);
     procedure trackPageChange(Sender: TObject);
     procedure trackSizeChange(Sender: TObject);
@@ -124,6 +129,12 @@ begin
   end;
   bh.Invalidate;
   bv.Invalidate;
+end;
+
+procedure TFormDemo.ListArrowsClick(Sender: TObject);
+begin
+  bv.KindArrows:= TATScrollArrowsKind(ListArrows.ItemIndex);
+  bh.KindArrows:= bv.KindArrows;
 end;
 
 procedure TFormDemo.trackBorChange(Sender: TObject);
