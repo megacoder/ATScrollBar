@@ -109,10 +109,30 @@ const
     $e0a0c0, clNavy,
     clRed div 2, clRed,
     $e05050);
+var
+  str: string;
+  p: TPoint;
 begin
   ACanvas.Brush.Color:= cc[AType];
   ACanvas.FillRect(ARect);
   ACanDo:= false;
+
+  case AType of
+    aseArrowUp: str:= '^';
+    aseArrowDown: str:= 'v';
+    aseArrowLeft: str:= '<';
+    aseArrowRight: str:= '>';
+    aseScrollThumbH: str:= '==';
+    aseScrollThumbV: str:= '||';
+    else str:= '';
+  end;
+
+  if str<>'' then
+  begin
+    p.x:= (ARect.Left+ARect.Right-ACanvas.TextWidth(str)) div 2;
+    p.y:= (ARect.Top+ARect.Bottom-ACanvas.TextHeight(str)) div 2;
+    ACanvas.TextOut(p.x, p.y, str);
+  end;
 end;
 
 procedure TFormDemo.chkDrawClick(Sender: TObject);
