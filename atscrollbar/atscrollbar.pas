@@ -170,8 +170,10 @@ type
     property Align;
     property Anchors;
     property BorderSpacing;
+    property Constraints;
     property Enabled;
     property DoubleBuffered;
+    property ParentShowHint;
     property PopupMenu;
     property ShowHint;
     property Visible;
