@@ -1,7 +1,7 @@
 object FormDemo: TFormDemo
-  Left = 303
+  Left = 260
   Height = 421
-  Top = 282
+  Top = 285
   Width = 716
   Caption = 'ATScrollBar demo'
   ClientHeight = 421
@@ -183,6 +183,7 @@ object FormDemo: TFormDemo
       ItemHeight = 23
       ItemIndex = 0
       OnClick = ListArrowsClick
+      Options = [lboDrawFocusRect]
       ScrollWidth = 198
       TabOrder = 7
     end
